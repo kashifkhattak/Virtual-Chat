@@ -7,9 +7,10 @@ def receive():
     #Handles receiving of messages
     while 1:
         try:
-            msg = client.recv(BUFSIZ).decode("utf8")
-            print (msg)
-            print ('Message from the server \n')
+            if flag == True:
+                msg = client.recv(BUFSIZ).decode("utf8")
+                print (msg)
+            
         except OSError:  # Possibly client has left the chat.
             break
 
@@ -30,23 +31,29 @@ NAME = str(sys.argv[1])
 
 print (sys.argv)
 if not PORT:
-    PORT = 33000
+    PORT = 2000
 BUFSIZ = 4096
 ADDR = (HOST, PORT)
 client = socket(AF_INET, SOCK_STREAM)
 client.connect(ADDR)
+flag = True
 receive_thread = Thread(target=receive)
 receive_thread.start()
 sleep(0.2)
 my_msg = NAME
+
 send()
 sleep(0.2)
 while 1:
-    my_msg = input("Type your message here:- \n ")
+    my_msg = input("\n")
     # For the messages to be sent.
     if my_msg == '/quit':
         on_closing()
         break
+    elif my_msg == '/sleep':
+        flag = False
+    elif my_msg == '/wake':
+        flag = True
     else:
         send()
         sleep(0.2)

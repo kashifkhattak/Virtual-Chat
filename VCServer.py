@@ -1,6 +1,7 @@
 """Server for multithreaded (asynchronous) chat application."""
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
+import sys
 
 
 def accept_incoming_connections():
@@ -26,13 +27,17 @@ def handle_client(client):  # Takes client socket as argument.
         sock.send(bytes(str(msg), "utf8"))
     
     while True:
-        msg = client.recv(BUFSIZ) 
+        msg = client.recv(BUFSIZ)
+        print(name,' : ',msg.decode())
+        
         if msg != bytes("/quit", "utf8"):
             msg = name+": "+str(msg)
             for sock in clients:
                 sock.send(bytes(str(msg), "utf8"))
         else:
-           client.send(bytes("/quit", "utf8"))
+            
+           #client.send(bytes("/quit", "utf8"))
+           print ('%s has left the chat.' % name )
            client.close()
            del clients[client]
            for sock in clients:
@@ -44,7 +49,10 @@ clients = {}
 addresses = {}
 
 HOST = ''
-PORT = 33000
+PORT = 2000
+if not PORT:
+    PORT = 2000
+
 BUFSIZ = 64000
 ADDR = (HOST, PORT)
 
