@@ -5,59 +5,82 @@ import sys
 
 
 def accept_incoming_connections():
-    """Sets up handling for incoming clients."""
+    #Sets up handling for incoming clients.
     while True:
         client, client_address = SERVER.accept() #Client and his info gets here.
         print("%s:%s has connected." % client_address)
         client.send(bytes("Greetings! Now type your name and press enter!", "utf8"))
-        addresses[client] = client_address
-        Thread(target=handle_client, args=(client,)).start()
+        addresses[client] = client_address #address dictionary
+        Thread(target=handle_client, args=(client,)).start() #Every client have his/her own thread.
 
 
 def handle_client(client):  # Takes client socket as argument.
-    """Handles a single client connection."""
-
+    #Handles a single client connection.
     name = client.recv(BUFSIZ).decode("utf8")
     welcome = ('Welcome %s! If you ever want to quit, type /quit to exit.' % name)
     client.send(bytes(welcome, "utf8"))
     msg = "%s has joined the chat!" % name
-    clients[client] = name
-    
+    clients[name] = client #client dictionary: name - socket
     for sock in clients:
-        sock.send(bytes(str(msg), "utf8"))
+        t = clients[sock]
+        t.send(bytes(str(msg), "utf8"))
     
     while True:
         msg = client.recv(BUFSIZ)
-        print(name,' : ',msg.decode())
-        
-        if msg != bytes("/quit", "utf8"):
-            msg = name+": "+str(msg)
-            for sock in clients:
-                sock.send(bytes(str(msg), "utf8"))
-        else:
-            
-           #client.send(bytes("/quit", "utf8"))
-           print ('%s has left the chat.' % name )
-           client.close()
-           del clients[client]
-           for sock in clients:
-                sock.send(bytes("%s has left the chat." % name, "utf8"))
-           break    
+        print(name,': ',msg.decode())
 
+        if msg == bytes("/name", "utf8"):
+            msg = client.recv(BUFSIZ)
+            oldname=msg.decode()
+            msg = client.recv(BUFSIZ)
+            newname=msg.decode()
+            clients[newname] = clients.pop(oldname)
+            name = newname
+            continue
+"""Currently working on it..."""
+##        elif msg == '/file':
+##                with open(text_file, "wb") as fw:
+##                  print("Receiving..")
+##                  while True:
+##                      print('receiving')
+##                      data = conn.recv(BUFSIZ)
+##                      if data != b'ENDED':
+##                          continue
+##                      else:
+##                          print('Received: ', data.decode('utf-8'))
+##                          fw.write(data)
+##                          print('Wrote to file', data.decode('utf-8'))
+##                  fw.close()
+                  
+        elif msg == bytes("/quit", "utf8"): #Quit fuctionality
+           print ('%s: has left the chat.' % name )
+           client.close()
+           #close the specific client from server side.
+           del clients[name]
+           for sock in clients:
+                t = clients[sock]
+                t.send(bytes("%s: has left the chat." % name, "utf8"))
+           break
+        else:
+            msg = name+": "+(msg.decode())
+            for sock in clients:
+                t = clients[sock]
+                t.send(bytes(str(msg), "utf8"))
+                continue
         
 clients = {}
 addresses = {}
 
 HOST = ''
 PORT = 2000
-if not PORT:
+if not PORT: #Default port set to 2000
     PORT = 2000
 
 BUFSIZ = 64000
 ADDR = (HOST, PORT)
 
 SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(ADDR)
+SERVER.bind(ADDR) #Binder which binds with the incoming host.
 
 if __name__ == "__main__":
    SERVER.listen(10)

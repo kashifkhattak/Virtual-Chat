@@ -7,22 +7,29 @@ def receive():
     #Handles receiving of messages
     while 1:
         try:
+            #flag for sleep and wake functions 
             if flag == True:
                 msg = client.recv(BUFSIZ).decode("utf8")
-                print (msg)
-            
-        except OSError:  # Possibly client has left the chat.
-            break
+                naming = msg.split(':')
+                if naming[0] not in blocked: 
+                    print (msg)
+        except:
+            pass
 
-def send(event=None):  #Event is passed by binders.
-    """Handles sending of messages."""
+def send(event=None):
+    #Event is passed by binders.
+    #Handles sending of messages.
     client.send(bytes(my_msg, "utf8"))
     if my_msg == "/quit":
-        client.close()
+        client.close() #client is disconnected from server
 
-def on_closing(event=None):
+def on_closing(event=None): #Termination Message
     my_msg = "/quit"
     send()
+
+
+def gethost(event=None):
+    pass
     
 #----Now comes the sockets part----
 HOST = str(sys.argv[3])
@@ -30,18 +37,18 @@ PORT = int(sys.argv[2])
 NAME = str(sys.argv[1])
 
 print (sys.argv)
-if not PORT:
+if not PORT: #default port is set to 2000
     PORT = 2000
 BUFSIZ = 4096
-ADDR = (HOST, PORT)
+ADDR = (HOST, PORT) 
 client = socket(AF_INET, SOCK_STREAM)
-client.connect(ADDR)
-flag = True
-receive_thread = Thread(target=receive)
-receive_thread.start()
+client.connect(ADDR) 
+flag = True #True for waked client.
+receive_thread = Thread(target=receive) #receive thread
+receive_thread.start() 
 sleep(0.2)
 my_msg = NAME
-
+blocked = []
 send()
 sleep(0.2)
 while 1:
@@ -50,10 +57,42 @@ while 1:
     if my_msg == '/quit':
         on_closing()
         break
-    elif my_msg == '/sleep':
+    elif my_msg == '/sleep': #Sleep functionality
         flag = False
-    elif my_msg == '/wake':
+    elif my_msg == '/wake': #Wake functionality
         flag = True
+    elif my_msg == '/block': #Block functionality
+        bn = input('enter blocking name: ')
+        blocked.append(bn)
+    elif my_msg == '/unblock': #Unblock functionality
+        un = input('enter unblocking name: ')
+        blocked.remove(un)
+"""Currently working on it..."""
+##    elif my_msg == '/file': #FTP
+##        text_file=input('file name: ')
+##        with open(text_file, 'rb') as fs:
+##            data = fs.read(BUFSIZ)
+##            print('Sending data', data.decode('utf-8'))
+##            client.send(data)
+##            print('Sent data', data.decode('utf-8'))
+##            if not data:
+##                my_msg = b'ENDED'
+##                sent()
+##                break
+##        client.send(b'ENDED') 
+    elif my_msg == '/name': #Name Changing functinality
+        send() #sends /name
+        sleep(0.2)
+        my_msg = NAME 
+        send() #sends oldname
+        name=input("Enter new name: ")
+        my_msg = name
+        sleep(0.2)
+        send() #sends newname
+        NAME = name
+        sleep(0.4)
+        my_msg = name
+        send()  
     else:
         send()
         sleep(0.2)
