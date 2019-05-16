@@ -1,3 +1,2 @@
-# Virtual-Chat-
-Virtual Chat developed in Python supporting Multiple Clients with String Manipulation on Windows OS.
-Multiple clients can send files from one to another
+# Virtual-Chat
+Virtual Chat developed in Python 3.x supporting Multiple Clients with String Manipulation functions on Windows OS.
