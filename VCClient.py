@@ -26,10 +26,6 @@ def send(event=None):
 def on_closing(event=None): #Termination Message
     my_msg = "/quit"
     send()
-
-
-def gethost(event=None):
-    pass
     
 #----Now comes the sockets part----
 HOST = str(sys.argv[3])
@@ -67,19 +63,13 @@ while 1:
     elif my_msg == '/unblock': #Unblock functionality
         un = input('enter unblocking name: ')
         blocked.remove(un)
-"""Currently working on it..."""
-##    elif my_msg == '/file': #FTP
-##        text_file=input('file name: ')
-##        with open(text_file, 'rb') as fs:
-##            data = fs.read(BUFSIZ)
-##            print('Sending data', data.decode('utf-8'))
-##            client.send(data)
-##            print('Sent data', data.decode('utf-8'))
-##            if not data:
-##                my_msg = b'ENDED'
-##                sent()
-##                break
-##        client.send(b'ENDED') 
+
+    elif my_msg == '/file':#FTP
+        send()
+        with open('test.txt', 'rb') as fs:
+            my_msg = fs.read(BUFSIZ)
+            client.send(my_msg)
+            
     elif my_msg == '/name': #Name Changing functinality
         send() #sends /name
         sleep(0.2)
@@ -92,7 +82,8 @@ while 1:
         NAME = name
         sleep(0.4)
         my_msg = name
-        send()  
+        send()
+        continue
     else:
         send()
         sleep(0.2)

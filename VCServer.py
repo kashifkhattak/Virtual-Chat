@@ -37,21 +37,16 @@ def handle_client(client):  # Takes client socket as argument.
             clients[newname] = clients.pop(oldname)
             name = newname
             continue
-"""Currently working on it..."""
-##        elif msg == '/file':
-##                with open(text_file, "wb") as fw:
-##                  print("Receiving..")
-##                  while True:
-##                      print('receiving')
-##                      data = conn.recv(BUFSIZ)
-##                      if data != b'ENDED':
-##                          continue
-##                      else:
-##                          print('Received: ', data.decode('utf-8'))
-##                          fw.write(data)
-##                          print('Wrote to file', data.decode('utf-8'))
-##                  fw.close()
-                  
+
+        elif msg == bytes("/file", "utf8"):
+            print('in file function.')       
+            with open('test.txt', "wb") as fw:
+              while True:
+                  msg = client.recv(BUFSIZ)
+                  fw.write(msg)
+                  break
+              fw.close()
+              
         elif msg == bytes("/quit", "utf8"): #Quit fuctionality
            print ('%s: has left the chat.' % name )
            client.close()
