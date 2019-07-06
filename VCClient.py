@@ -47,6 +47,7 @@ my_msg = NAME
 blocked = []
 send()
 sleep(0.2)
+#Functionalities
 while 1:
     my_msg = input("\n")
     # For the messages to be sent.
@@ -70,7 +71,8 @@ while 1:
             my_msg = fs.read(BUFSIZ)
             client.send(my_msg)
             
-    elif my_msg == '/name': #Name Changing functinality
+    elif my_msg == '/name':
+                             #Name Changing functinality
         send() #sends /name
         sleep(0.2)
         my_msg = NAME 
